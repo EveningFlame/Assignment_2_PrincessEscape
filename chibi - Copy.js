@@ -7,7 +7,6 @@ function Chibi(game, minionSprite, frameHeight, frameWidth, startX, startY,
     walking, placeX, placeY, loop, nameInitial) {
 //AnimationSprite(spriteSheet, startX, startY, frameWidth, frameHeight, 
 //frameDuration, frames, loop, reverse)
-    this.gamePlay = game;
     this.stand = new AnimationSprite(minionSprite, startX, (startY * 0), frameWidth, frameHeight, defaultSpeed, 0, loop, false);
     this.walkForward = new AnimationSprite(minionSprite, startX, (startY * 0), frameWidth, frameHeight, defaultSpeed, walking, loop, false);
     this.walkLeft = new AnimationSprite(minionSprite, startX, (startY * 1), frameWidth, frameHeight, defaultSpeed, walking, loop, false);
@@ -30,7 +29,7 @@ function Chibi(game, minionSprite, frameHeight, frameWidth, startX, startY,
     this.change = true;
     this.alive = true;
     this.timeOut = 5;
-    	
+	
     this.identity = nameInitial;
     //(x, y, width, height)
     this.boundingbox = new BoundingBox(this.x + 5, this.y + 5, this.frameWidth - 10, this.frameHeight - 10);
@@ -131,26 +130,6 @@ Chibi.prototype.update = function () {
                     this.alive = false; //they are alive, but I want them to timeOut....poorly named variable.
                     this.x = 638;
                     this.y = 490;
-                    
-                    
-                    var fire = ASSET_MANAGER.getAsset("./img/fireworks.png");
-                    var fireX = 0;
-                    var fireY = 0;
-                    
-                    if(this.identity === "a"){//Ariel = 80 400
-                        fireX = 80;
-                        fireY = 410;
-                    } else if(this.identity === "c"){//Cinder = 590 0
-                        fireX = 590;
-                        fireY = 0;
-                    } else {//Snow = 1068 20
-                        fireX = 1068;
-                        fireY = 250;
-                    }    
-                   
-                    var boom = new Firework(this.gamePlay, fire, 70, 96, 0, 70, 8, fireX, fireY, false);
-                    this.gamePlay.addEntity(boom);
-                    
                 }
             
             }  else if(base.identity !== this.identity && this.circleCollision({x: base.centerX, y: base.centerY, radius: 120})){

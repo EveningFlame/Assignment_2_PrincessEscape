@@ -32,7 +32,6 @@ function GameEngine() {
     this.entities = [];
     this.princesses = [];
     this.bases = [];
-    this.fireworks = [];
     this.villian = null;
     this.showOutlines = false;
     this.ctx = null;
@@ -104,10 +103,10 @@ GameEngine.prototype.startInput = function () {
     }, false);
     
     console.log('Input started');
-};
+}
 //HERE IS WHERE I NEED TO ADD IF THEY ARE PRINCESSES OR NOT?!?!?!?!
 GameEngine.prototype.addEntity = function (entity) {
-    //console.log('added entity');
+    console.log('added entity');
 	this.entities.push(entity);
 	if(entity.name === "Princess"){
 		//console.log("princess saved");
@@ -117,10 +116,10 @@ GameEngine.prototype.addEntity = function (entity) {
 		//console.log("entered base");
 		this.bases.push(entity);
 	}
-        if(entity.name === "Fireworks"){
-            //console.log("entered fireworks");
-            this.fireworks.push(entity);
-	}
+//        if(entity.name === "Villian"){
+//            console.log("entered villian");
+//            this.villian = entity;
+//	}
     
 };
 
@@ -158,12 +157,6 @@ GameEngine.prototype.update = function () {
     for (var i = this.bases.length - 1; i >= 0; --i) {
         if (this.bases[i].removeFromWorld) {
             this.bases.splice(i, 1);
-        }
-    }
-    
-    for (var i = this.fireworks.length - 1; i >= 0; --i) {
-        if (this.fireworks[i].removeFromWorld) {
-            this.fireworks.splice(i, 1);
         }
     }
 	

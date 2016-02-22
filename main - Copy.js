@@ -1,5 +1,5 @@
 var defaultSpeed = 0.1;
-var maxSpeed = 105;
+var maxSpeed = 100;
 var acceleration = 100000;
 var chase = 95000;
 var slowerAcceleration = 70000;
@@ -362,7 +362,6 @@ ASSET_MANAGER.queueDownload("./img/SnowWhite.png");
 ASSET_MANAGER.queueDownload("./img/arielChibi.png");
 ASSET_MANAGER.queueDownload("./img/cinderellaChibi.png");
 ASSET_MANAGER.queueDownload("./img/snowwhiteChibi.png");
-ASSET_MANAGER.queueDownload("./img/fireworks.png");
 
 ASSET_MANAGER.downloadAll(function () {
     console.log("starting up da sheild");
@@ -378,7 +377,6 @@ ASSET_MANAGER.downloadAll(function () {
 	var arielSprite = ASSET_MANAGER.getAsset("./img/arielChibi.png");
 	var cinderellaSprite = ASSET_MANAGER.getAsset("./img/cinderellaChibi.png");
 	var snowSprite = ASSET_MANAGER.getAsset("./img/snowwhiteChibi.png");
-
 	
     var gameEngine = new GameEngine();
    
@@ -423,7 +421,7 @@ ASSET_MANAGER.downloadAll(function () {
 		var cinderChibi = new Chibi(gameEngine, cinderellaSprite, 48, 32, 0, 48, 4, 1150, 650, true, "c");		
 		gameEngine.addEntity(cinderChibi);		
 	} 
-        
+	
     gameEngine.init(ctx);
     gameEngine.start();
 
