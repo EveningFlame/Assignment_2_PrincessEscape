@@ -1,7 +1,7 @@
 var defaultSpeed = 0.1;
 var maxSpeed = 105;
 var acceleration = 100000;
-var chase = 95000;
+var chase = 90000;
 var slowerAcceleration = 70000;
 // platforms animation
 function AnimateBackground(image, frameWidth, frameHeight, imageX, imageY) {
