@@ -1,3 +1,7 @@
+//Need to connect to Marriot home base with this:
+var socket = io.connect("http://76.28.150.193:8888");
+//The rest of the onload code is located at the bottom.
+
 var defaultSpeed = 0.1;
 var maxSpeed = 105;
 var acceleration = 100000;
@@ -91,6 +95,8 @@ function Background(game, platformSprite, width, height, startX, startY, type) {
     this.centerX = this.x + this.width/2;
     this.centerY = this.y + this.height/2;
     this.identity = type;
+    
+    this.spritesheet = platformSprite;
 
     if(type === "a" || type === "c" || type === "s"){
         this.boundingbox = new BoundingBox(this.x + 45, this.y + 35, this.width - 80, this.height - 80); 
@@ -113,7 +119,7 @@ Background.prototype.update = function () {
 
 Background.prototype.draw = function (ctx) {
 	
-    if (this.boxes && this.identity !== "b") {
+    if (this.boxes && this.identity !== "b" && this.identity !== "b2") {
         ctx.strokeStyle = "red";
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.strokeStyle = "black";
@@ -143,7 +149,7 @@ Background.prototype.draw = function (ctx) {
  * 
  Chibi(gameEngine, Koopa, 688, 417, 200, 688, 6, defaultGround, 600, true);
  */
-function Villian(game, minionSprite, frameHeight, frameWidth, startX, startY, flying, placeX, placeY, loop) {
+function Villian(game, minionSprite, frameHeight, frameWidth, startX, startY, flying, placeX, placeY, loop, veloX, veloY) {
     //frame animations
     this.flyingRight = new AnimationSprite(minionSprite, startX, (startY * 0), frameWidth, frameHeight, .16, flying, loop, false);
     this.flyingLeft = new AnimationSprite(minionSprite, startX, (startY * 1), frameWidth, frameHeight, .16, flying, loop, false);
@@ -164,7 +170,7 @@ function Villian(game, minionSprite, frameHeight, frameWidth, startX, startY, fl
     
     //(x, y, width, height)
     this.boundingbox = new BoundingBox(this.x, this.y, this.width - 60, this.height - 65);
-    this.velocity = { x: Math.random() * 150, y: Math.random() * 150 };
+    this.velocity = { x: veloX, y: veloY };
 	
     Entity.call(this, game, placeX, placeY);
 };
@@ -257,7 +263,6 @@ Villian.prototype.update = function () {
         this.x += this.velocity.x * this.game.clockTick;
         this.y += this.velocity.y * this.game.clockTick;
     }
-    
     Entity.prototype.update.call(this);
 };
 
@@ -335,15 +340,12 @@ function findSlope(entity){
 
 
 
-function distanceBetween(ent1, entity2, i) {
+function distanceBetween(ent1, entity2) {
     //console.log(ent1 + "  " + i);
     var distanceOnX = ent1.x - entity2.x;
     var distanceOnY = ent1.y - entity2.y;	
     return Math.sqrt(distanceOnX * distanceOnX + distanceOnY * distanceOnY);
 };
-
-
-
 
 //1298+32+32 = 1362   730+48+48 = 866 - 48 = 816
 var screenWidth = 1325;
@@ -364,67 +366,159 @@ ASSET_MANAGER.queueDownload("./img/cinderellaChibi.png");
 ASSET_MANAGER.queueDownload("./img/snowwhiteChibi.png");
 ASSET_MANAGER.queueDownload("./img/fireworks.png");
 
-ASSET_MANAGER.downloadAll(function () {
-    console.log("starting up da sheild");
-    var canvas = document.getElementById('gameWorld');
-    var ctx = canvas.getContext('2d');
-
-    var worldBackground = ASSET_MANAGER.getAsset("./img/Olimpo.png");
-	var castle = ASSET_MANAGER.getAsset("./img/castle.png");
-	var villian = ASSET_MANAGER.getAsset("./img/gargoyle.png");
-	var aBaseSprite = ASSET_MANAGER.getAsset("./img/Ariel.png");
-	var cBaseSprite = ASSET_MANAGER.getAsset("./img/Cinderella.png");
-	var sBaseSprite = ASSET_MANAGER.getAsset("./img/SnowWhite.png");
-	var arielSprite = ASSET_MANAGER.getAsset("./img/arielChibi.png");
-	var cinderellaSprite = ASSET_MANAGER.getAsset("./img/cinderellaChibi.png");
-	var snowSprite = ASSET_MANAGER.getAsset("./img/snowwhiteChibi.png");
-
-	
+window.onload = function() {
     var gameEngine = new GameEngine();
-   
-    //background - the last two digits are for the bounding box. unecessary for the background
-	var backgr = new Background(gameEngine, worldBackground, 1920, 1080, 0, 0, "b");
-	var castleRespawn = new Background(gameEngine, castle, 198, 194, 560, 350, "b");
- //function Background(game, platformSprite, width, height, startX, startY, frameWidth,frameHeight, type) {
-//610, 440
-	//princess bases
-	var arielBase = new Background(gameEngine, aBaseSprite, 181, 192, 45, 485, "a");
-	var cinderellaBase = new Background(gameEngine, cBaseSprite, 172, 200, 510, 40, "c"); 
-	var snowBase = new Background(gameEngine, sBaseSprite, 146, 181, 1035, 325, "s");
-	
-	
-	
-/* 	function Chibi(game, minionSprite, frameHeight, frameWidth, startX, startY,
-    frames, placeX, placeY, loop) { */
-	//add the background and bases to the game
-    gameEngine.addEntity(backgr);
-	gameEngine.addEntity(castleRespawn);
-	gameEngine.addEntity(arielBase);
-	gameEngine.addEntity(cinderellaBase);
-	gameEngine.addEntity(snowBase);
-	
-	//638  490
+    ASSET_MANAGER.downloadAll(function () {
+        console.log("starting up da sheild");
+        var canvas = document.getElementById('gameWorld');
+        var ctx = canvas.getContext('2d');
 
-	//var gargoyle = new Villian(gameEngine, villian, 110, 110.2, 0, 110, 6, 500, 500, true);
-        //gameEngine.addEntity(gargoyle);
-        gameEngine.villian = new Villian(gameEngine, villian, 110, 110.2, 0, 110, 6, 500, 500, true);
-	gameEngine.addEntity(gameEngine.villian);
-	//CHIBI PRINCESSESS
-	for(var i = 0; i < 6; i ++){		
-	    var airChibi = new Chibi(gameEngine, arielSprite, 48, 32, 0, 48, 4, 1230, 152, true, "a");		
-		gameEngine.addEntity(airChibi);		
-	}
+        var worldBackground = ASSET_MANAGER.getAsset("./img/Olimpo.png");
+        var castle = ASSET_MANAGER.getAsset("./img/castle.png");
+        var villian = ASSET_MANAGER.getAsset("./img/gargoyle.png");
+        var aBaseSprite = ASSET_MANAGER.getAsset("./img/Ariel.png");
+        var cBaseSprite = ASSET_MANAGER.getAsset("./img/Cinderella.png");
+        var sBaseSprite = ASSET_MANAGER.getAsset("./img/SnowWhite.png");
+        var arielSprite = ASSET_MANAGER.getAsset("./img/arielChibi.png");
+        var cinderellaSprite = ASSET_MANAGER.getAsset("./img/cinderellaChibi.png");
+        var snowSprite = ASSET_MANAGER.getAsset("./img/snowwhiteChibi.png");
 
-	for(var i = 0; i < 6; i ++){	
-		var snowChibi = new Chibi(gameEngine, snowSprite, 48, 32, 0, 48, 4, 40, 225, true, "s");		
-		gameEngine.addEntity(snowChibi);		
-	}
-	for(var i = 0; i < 6; i ++){		
-		var cinderChibi = new Chibi(gameEngine, cinderellaSprite, 48, 32, 0, 48, 4, 1150, 650, true, "c");		
-		gameEngine.addEntity(cinderChibi);		
-	} 
+
         
-    gameEngine.init(ctx);
-    gameEngine.start();
 
-});
+        //background - the last two digits are for the bounding box. unecessary for the background
+            var backgr = new Background(gameEngine, worldBackground, 1920, 1080, 0, 0, "b");
+            var castleRespawn = new Background(gameEngine, castle, 198, 194, 560, 350, "b2");
+     //function Background(game, platformSprite, width, height, startX, startY, frameWidth,frameHeight, type) {
+    //610, 440
+            //princess bases
+            var arielBase = new Background(gameEngine, aBaseSprite, 181, 192, 45, 485, "a");
+            var cinderellaBase = new Background(gameEngine, cBaseSprite, 172, 200, 510, 40, "c"); 
+            var snowBase = new Background(gameEngine, sBaseSprite, 146, 181, 1035, 325, "s");
+
+
+
+    /* 	function Chibi(game, minionSprite, frameHeight, frameWidth, startX, startY,
+        frames, placeX, placeY, loop) { */
+            //add the background and bases to the game
+        gameEngine.addEntity(backgr);
+        gameEngine.addEntity(castleRespawn);
+        gameEngine.addEntity(arielBase);
+        gameEngine.addEntity(cinderellaBase);
+        gameEngine.addEntity(snowBase);
+
+            //638  490
+
+            //var gargoyle = new Villian(gameEngine, villian, 110, 110.2, 0, 110, 6, 500, 500, true);
+            //gameEngine.addEntity(gargoyle);
+        gameEngine.villian = new Villian(gameEngine, villian, 110, 110.2, 0, 110, 6, 500, 500, true, Math.random() * 150, Math.random() * 150);
+        gameEngine.addEntity(gameEngine.villian);
+        //CHIBI PRINCESSESS
+        for(var i = 0; i < 6; i ++){		
+            var airChibi = new Chibi(gameEngine, arielSprite, 48, 32, 0, 48, 4, 1230, 152, true, "a", Math.random() * 150, Math.random() * 150);		
+                gameEngine.addEntity(airChibi);		
+        }
+
+        for(var i = 0; i < 6; i ++){	
+                var snowChibi = new Chibi(gameEngine, snowSprite, 48, 32, 0, 48, 4, 40, 225, true, "s", Math.random() * 150, Math.random() * 150);		
+                gameEngine.addEntity(snowChibi);		
+        }
+        for(var i = 0; i < 6; i ++){		
+                var cinderChibi = new Chibi(gameEngine, cinderellaSprite, 48, 32, 0, 48, 4, 1150, 650, true, "c", Math.random() * 150, Math.random() * 150);		
+                gameEngine.addEntity(cinderChibi);		
+        } 
+
+        gameEngine.init(ctx);
+        gameEngine.start();
+        
+        socket.on("load", function(data) {
+            var entities = data.gameState;
+            gameEngine.entities = [];
+            gameEngine.princesses = [];
+            gameEngine.bases = [];
+            gameEngine.fireworks = [];
+            var loadingEnt = null;
+            for (var i = 0; i < entities.length; i++) {
+                var ent = entities[i];
+                if (ent.name === "Princess") {
+                    var sprite;
+                    if (ent.identity === "a") {
+                        sprite = arielSprite;
+                    } else if (ent.identity === "c") {
+                        sprite = cinderellaSprite;
+                    } else if (ent.identity === "s") {
+                        sprite = snowSprite;
+                    }
+//                    function Chibi(game, minionSprite, frameHeight, frameWidth, startX, startY, walking, placeX, placeY, loop, nameInitial) {
+                    loadingEnt = new Chibi(gameEngine, sprite, 48, 32, 0, 48, 4, ent.x, ent.y, true, ent.identity, ent.veloX, ent.veloY);
+                } else if (ent.name === "Villian"){
+                    loadingEnt = new Villian(gameEngine, villian, 110, 110.2, 0, 110, 6, ent.x, ent.y, true, ent.veloX, ent.veloY);
+                    gameEngine.villian = loadingEnt;
+                }// Villian(game, minionSprite, frameHeight, frameWidth, startX, startY, flying, placeX, placeY, loop) {
+                else if (ent.name === "Background") {
+                    var sprite;
+                    if(ent.identity === "b"){
+                        sprite = worldBackground;
+                    } else if (ent.identity === "a") {
+                        sprite = aBaseSprite;
+                    } else if (ent.identity === "c") {
+                        sprite = cBaseSprite;
+                    } else if (ent.identity === "s") {
+                        sprite = sBaseSprite;
+                    } else {
+                        sprite = castle;
+                    }
+                    loadingEnt = new Background(gameEngine, sprite, ent.width, ent.height, ent.x, ent.y, ent.identity);
+                }//Background(game, platformSprite, width, height, startX, startY, type)
+                gameEngine.addEntity(loadingEnt);
+            }
+
+        });
+
+        document.getElementById("save").onclick = function(e) {
+            e.preventDefault();
+            console.log("Saving Gamestate");
+            console.log(gameEngine.entities);
+            var entities = gameEngine.entities;
+            var saveState = {studentname: "Ariel McNamara", statename: "princessEscape", gameState: []};
+            for (var i = 0; i < gameEngine.entities.length; i++) {
+                if (gameEngine.entities[i] instanceof Chibi) {
+                    //princesses need their sprite sheet saved, their initial, their x and y
+                    var chibsuke = gameEngine.entities[i];
+                    //(gameEngine, entities[i].spritesheet, 48, 32, 0, 48, 4, entities[i].x, entities[i].y, true, entities.identity);
+                    saveState.gameState.push({name: "Princess", x: chibsuke.x, y: chibsuke.y, identity: chibsuke.identity, veloX: chibsuke.velocity.x, veloY: chibsuke.velocity.y});
+                    console.log("Chibi Princesses have been saved");
+                } else if(gameEngine.entities[i] instanceof Villian) {
+                    var villianEnt = gameEngine.entities[i];
+                    saveState.gameState.push({name: "Villian", x: villianEnt.x, y: villianEnt.y, veloX: villianEnt.velocity.x, veloY: villianEnt.velocity.y});
+                    console.log("Villian saved");
+                } else if(gameEngine.entities[i] instanceof  Background){
+                    //Background(game, platformSprite, width, height, startX, startY, type)
+                    var bg = gameEngine.entities[i];
+                    saveState.gameState.push({name: "Background", width: bg.width, height: bg.height, x: bg.x, y: bg.y, identity: bg.identity});
+                    console.log("BG, castle, and bases saved");
+                }
+            }
+
+            socket.emit("save", saveState);  
+        };
+
+        document.getElementById("load").onclick = function(e) {
+            e.preventDefault();
+            console.log("loading.....second load function");
+            socket.emit("load", {studentname: "Ariel McNamara", statename: "princessEscape"});
+        };
+        
+        
+        socket.on("connect", function () {
+            console.log("Socket connected.");
+        });
+        socket.on("disconnect", function () {
+            console.log("Socket disconnected.");
+        });
+        socket.on("reconnect", function () {
+            console.log("Socket reconnected.");
+        });
+
+    });
+};
