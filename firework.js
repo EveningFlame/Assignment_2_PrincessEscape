@@ -19,7 +19,7 @@ function Firework(game, minionSprite, frameHeight, frameWidth, startX, startY, f
 
 Firework.prototype = new Entity();
 
-Firework.prototype.constructor = Chibi;
+Firework.prototype.constructor = Firework;
 
 
 

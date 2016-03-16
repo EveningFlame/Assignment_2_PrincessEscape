@@ -4,10 +4,11 @@
  */
 var princessSize = 1.25;
 function Chibi(game, minionSprite, frameHeight, frameWidth, startX, startY,
-    walking, placeX, placeY, loop, nameInitial) {
+    walking, placeX, placeY, loop, nameInitial, veloX, veloY) {
 //AnimationSprite(spriteSheet, startX, startY, frameWidth, frameHeight, 
 //frameDuration, frames, loop, reverse)
     this.gamePlay = game;
+    this.spriteSheet = minionSprite;
     this.stand = new AnimationSprite(minionSprite, startX, (startY * 0), frameWidth, frameHeight, defaultSpeed, 0, loop, false);
     this.walkForward = new AnimationSprite(minionSprite, startX, (startY * 0), frameWidth, frameHeight, defaultSpeed, walking, loop, false);
     this.walkLeft = new AnimationSprite(minionSprite, startX, (startY * 1), frameWidth, frameHeight, defaultSpeed, walking, loop, false);
@@ -35,7 +36,7 @@ function Chibi(game, minionSprite, frameHeight, frameWidth, startX, startY,
     //(x, y, width, height)
     this.boundingbox = new BoundingBox(this.x + 5, this.y + 5, this.frameWidth - 10, this.frameHeight - 10);
 	
-    this.velocity = { x: Math.random() * 150, y: Math.random() * 150 };	
+    this.velocity = { x: veloX, y: veloY };	
     Entity.call(this, game, placeX, placeY);
 };
 
@@ -47,7 +48,7 @@ Chibi.prototype.insideBase = function (other) {
     //bounding box is always changing due to the always moving Chibi. So it gets updated in the update	
     //little princess needs to be inside of the bounding box of the base in order to make it.
     return (this.boundingbox.x + this.boundingbox.width < other.boundingbox.x + other.boundingbox.width &&
-	this.boundingbox.x > other.boundingbox.x &&
+		this.boundingbox.x > other.boundingbox.x &&
         this.boundingbox.height + this.boundingbox.y < other.boundingbox.y + other.boundingbox.height &&
         this.boundingbox.y > other.boundingbox.y);
 
@@ -151,7 +152,7 @@ Chibi.prototype.update = function () {
                     var boom = new Firework(this.gamePlay, fire, 70, 96, 0, 70, 8, fireX, fireY, false);
                     this.gamePlay.addEntity(boom);
                     
-                }
+                } 
             
             }  else if(base.identity !== this.identity && this.circleCollision({x: base.centerX, y: base.centerY, radius: 120})){
                 var difX = (base.centerX - this.x) / dist;
@@ -163,7 +164,7 @@ Chibi.prototype.update = function () {
         var villian = this.game.villian;
         //Collide with the villian
         if(this.circleCollision({x: villian.centerX, y: villian.centerY, radius: this.visualRadius})){
-        
+            
             if(this.boundingbox.collide(this, villian)){
                 this.alive = false;
             } else {        
@@ -197,11 +198,11 @@ Chibi.prototype.update = function () {
             this.timeOut = 5;
         }
     }
-
     Entity.prototype.update.call(this);
 };
 
 Chibi.prototype.draw = function (ctx) {
+    
     if(this.alive){
             //lastY = y1   y = y2
         //lastX = x1   x = x2
